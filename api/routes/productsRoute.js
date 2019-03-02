@@ -57,7 +57,6 @@ router.get('/:productId', (req, res, next) => {
     .select('name price _id')
     .exec()
     .then(doc => {
-        console.log(doc);
         if (doc) {
             res.status(200).json({
                 product: doc
