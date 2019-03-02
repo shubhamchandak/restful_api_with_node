@@ -15,6 +15,8 @@ mongoose.connect('mongodb://cherrybrooklyn:'+ process.env.MONGO_ATLAS_PASSWORD +
     useNewUrlParser: true
 });
 
+mongoose.Promise = global.Promise;
+
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
