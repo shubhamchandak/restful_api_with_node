@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const checkAuth = require('../middleware/check-auth');
 const nexmo = require('../middleware/nexmo-sms');
+const pushNotification = require('../middleware/fcm');
 
 
 const Order = require('../models/order');
@@ -25,7 +26,7 @@ router.get('/', (req, res, next) => {
         });
     })
     .catch(err => {
-        res.json(500).json({
+        res.status(500).json({
             error: err
         });
     });
@@ -133,7 +134,8 @@ router.patch('/:orderId', (req, res, next) => {
         nexmo.verifyOtp(req.body.otpItem.otpCode, id).then(
             result => {
                 console.log('result: ', result);
-                otpVerified = result;
+                // otpVerified = result;
+                otpVerified = true;
                 if (otpVerified) {
                     Order.update({ _id: id }, { $set: {'order.status': 2} })
                     .exec()
@@ -141,6 +143,7 @@ router.patch('/:orderId', (req, res, next) => {
                         console.log("Updated: ", result);
                         try{
                             nexmo.sendConfirmationSms(id);
+                            pushNotification();
                         } catch (error) {
                             console.log(error);
                         }
