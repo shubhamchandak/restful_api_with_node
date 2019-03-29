@@ -15,7 +15,6 @@ module.exports = {
         nexmo.message.sendSms(from, '91'+to, otpText + otpCode);
     },
     verifyOtp: async (otpCode, orderId) => {
-        console.log("verifyOtp GHUSA");
         var result = Order.findById(orderId)
         .exec()
         .then(orderDetail => {
@@ -27,7 +26,6 @@ module.exports = {
         return result;
     },
     sendConfirmationSms: (orderId) => {
-        console.log("confirmation k andar");
         Order.findById(orderId)
         .exec()
         .then(orderDetail => {

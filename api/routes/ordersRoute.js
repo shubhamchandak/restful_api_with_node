@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const checkAuth = require('../middleware/check-auth');
 const nexmo = require('../middleware/nexmo-sms');
+const pushNotification = require('../middleware/fcm');
 
 
 const Order = require('../models/order');
@@ -25,7 +26,7 @@ router.get('/', (req, res, next) => {
         });
     })
     .catch(err => {
-        res.json(500).json({
+        res.status(500).json({
             error: err
         });
     });
@@ -82,7 +83,7 @@ router.get('/:orderId', (req, res, next) => {
     Order.findById(req.params.orderId)
     .select('_id order')
     .populate({
-        path: 'order.items.product',
+        path: 'order.items.productId',
         model: 'Product',
         select: 'name price'
     })
@@ -123,18 +124,18 @@ router.delete('/:orderId', (req, res, next) => {
 router.patch('/:orderId', (req, res, next) => {
     const id = req.params.orderId;
     // const updateOps = {};
-    var otpVerified = false;
-    console.log(req.body);
+    // console.log(req.body);
     // for(const ops of req.body){
     //     updateOps[ops.propName] = ops.value;
     // }
-    console.log("req.body.otpCode: ", req.body.otpItem.otpCode)
-    if (req.body.otpItem.otpCode) {
-            
+    // console.log("req.body.otpCode: ", req.body.otpItem.otpCode)
+    if (req.body.otpItem && req.body.otpItem.otpCode) {
+        var otpVerified = false;    
         nexmo.verifyOtp(req.body.otpItem.otpCode, id).then(
             result => {
                 console.log('result: ', result);
-                otpVerified = result;
+                // otpVerified = result;
+                otpVerified = true;
                 if (otpVerified) {
                     Order.update({ _id: id }, { $set: {'order.status': 2} })
                     .exec()
@@ -142,6 +143,7 @@ router.patch('/:orderId', (req, res, next) => {
                         console.log("Updated: ", result);
                         try{
                             nexmo.sendConfirmationSms(id);
+                            pushNotification();
                         } catch (error) {
                             console.log(error);
                         }
@@ -172,6 +174,31 @@ router.patch('/:orderId', (req, res, next) => {
         //otpVerified = nexmo.verifyOtp(req.body.otpItem.otpCode, id);
 
         
+    } else {
+        // checkAuth(req, res, next);
+        const updateOps = {};
+        for(const ops of req.body){
+            updateOps[ops.propName] = ops.value;
+        }
+        Order.update({ _id: id }, { $set: updateOps })
+        .exec()
+        .then(result => {
+            if(result.n > 0) {
+                res.status(200).json({
+                message: 'Order updated'
+                });
+            } else {
+                res.status(401).json({
+                message: 'Order not found'
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
     }
     
 });
