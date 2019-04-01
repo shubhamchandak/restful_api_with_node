@@ -134,8 +134,8 @@ router.patch('/:orderId', (req, res, next) => {
         nexmo.verifyOtp(req.body.otpItem.otpCode, id).then(
             result => {
                 // console.log('result: ', result);
-                // otpVerified = result;
-                otpVerified = true;
+                otpVerified = result;
+                // otpVerified = true;
                 if (otpVerified) {
                     Order.update({ _id: id }, { $set: {'order.status': 2} })
                     .exec()
@@ -143,7 +143,7 @@ router.patch('/:orderId', (req, res, next) => {
                         // console.log("Updated: ", result);
                         try{
                             nexmo.sendConfirmationSms(id);
-                            pushNotification();
+                            // pushNotification();
                         } catch (error) {
                             console.log(error);
                         }
