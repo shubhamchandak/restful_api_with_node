@@ -7,7 +7,7 @@ const Product = require("../models/product");
 
 router.get('/', (req, res, next) => {
     Product.find()
-    .select('_id name price status')
+    .select('_id name price status type')
     .exec()
     .then(docs => {
         const response = {
@@ -28,7 +28,9 @@ router.post('/', (req, res, next) => {
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        price: req.body.price
+        price: req.body.price,
+        status: req.body.status,
+        type: req.body.type
     });
     product
         .save()
@@ -39,7 +41,9 @@ router.post('/', (req, res, next) => {
                 createdProduct: {
                     name: result.name,
                     price: result.price,
-                    _id: result._id
+                    _id: result._id,
+                    status: result.status,
+                    type: result.type
                 }
             });
         })
@@ -55,7 +59,7 @@ router.post('/', (req, res, next) => {
 router.get('/:productId', (req, res, next) => {
     const id = req.params.productId;
     Product.findById(id)
-    .select('name price _id')
+    .select('name price _id status type')
     .exec()
     .then(doc => {
         if (doc) {

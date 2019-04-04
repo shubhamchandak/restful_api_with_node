@@ -59,29 +59,47 @@ router.post('/', (req, res, next) => {
                         newOrder.order.netAmount += productQuantities[index] * x.price;
                     }
                 });
+                newOrder.order.finalAmount = newOrder.order.netAmount;
             });
-            return newOrder.save();
+            Order.find({'order.phone': userPhone})
+            .where('order.status').ne(1)
+            .exec()
+            .then(prevOrders => {
+                console.log("Purane orders ka length: " + prevOrders.length)
+                if(prevOrders.length == 0) {
+                    newOrder.order.discount = ((newOrder.order.netAmount/2 > 50) ? 50 : (newOrder.order.netAmount/2));
+                    newOrder.order.finalAmount = newOrder.order.netAmount - newOrder.order.discount;
+                }
+                console.log("netAmount: " + newOrder.order.netAmount + ",discount: " + newOrder.order.discount + ", finalAmount: " + newOrder.order.finalAmount);
+                newOrder.save()
+                .then(result => {
+                    nexmo.sendOtp(newOrder.order.otpCode, userPhone);
+                    res.status(200).json({
+                        _id: result._id,
+                        order: result.order
+                    });
+                });
+            })
+            // .catch(err => console.log(err));
+
+        } else {
+            return res.status(404).json({
+                message: "Product not found"
+            });
         }
-        return res.status(404).json({
-            message: "Product not found"
-        })
+
     })
-    .then(result => {
-        nexmo.sendOtp(newOrder.order.otpCode, userPhone);
-        res.status(200).json({
-            _id: result._id,
-            order: result.order
+    .catch(err => {
+        console.log("Error aa gaya => " + err)
+        res.status(404).json({
+            error: err
         });
-    })
-    .catch(err => res.status(404).json({
-        error: err
-    }));
-    
+    });
 });
 
 router.get('/:orderId', (req, res, next) => {
     Order.findById(req.params.orderId)
-    .select('_id order')
+    .select('-order.otpCode')
     .populate({
         path: 'order.items.productId',
         model: 'Product',
@@ -103,7 +121,7 @@ router.get('/:orderId', (req, res, next) => {
     });
 });
 
-router.delete('/:orderId', (req, res, next) => {
+router.delete('/:orderId', checkAuth, (req, res, next) => {
     const id = req.params.orderId;
     Order.remove({ _id: id })
     .exec()
@@ -143,7 +161,7 @@ router.patch('/:orderId', (req, res, next) => {
                         // console.log("Updated: ", result);
                         try{
                             nexmo.sendConfirmationSms(id);
-                            // pushNotification();
+                            pushNotification();
                         } catch (error) {
                             console.log(error);
                         }
@@ -171,9 +189,6 @@ router.patch('/:orderId', (req, res, next) => {
                 });
             }
         )
-        //otpVerified = nexmo.verifyOtp(req.body.otpItem.otpCode, id);
-
-        
     } else {
         // checkAuth(req, res, next);
         const updateOps = {};
