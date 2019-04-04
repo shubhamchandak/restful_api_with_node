@@ -83,7 +83,7 @@ module.exports = {
                 "country": "91",
                 "sms": [
                 {
-                    "message": "Your order from CherryBrooklyn amounted Rs." + orderDetail.order.netAmount + " has been placed successfully and will be delivered soon.",
+                    "message": "Your order from CherryBrooklyn amounted Rs." + orderDetail.order.finalAmount + " has been placed successfully and will be delivered soon.",
                     "to": [orderDetail.order.phone+""]
                 }
                 ]

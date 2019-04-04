@@ -14,7 +14,7 @@ module.exports = () => {
     var message = {
         notification: {
             title: 'Order Received',
-            body: date.toLocaleTimeString().replace(/:\d+ /, ' ')
+            body: date.toLocaleTimeString().replace(/:\d+ /, ' '),
         },
         token: process.env.ORDER_NOTIFICATION_RECEIVER_TOKEN
     };

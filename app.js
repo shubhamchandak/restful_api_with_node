@@ -13,7 +13,8 @@ const orderRoutes = require('./api/routes/ordersRoute');
 const userRoutes = require('./api/routes/userRoute');
 
 mongoose.connect('mongodb://cherrybrooklyn:'+ process.env.MONGO_ATLAS_PASSWORD + '@cherrybrooklyn-shard-00-00-af8qu.mongodb.net:27017,cherrybrooklyn-shard-00-01-af8qu.mongodb.net:27017,cherrybrooklyn-shard-00-02-af8qu.mongodb.net:27017/test?ssl=true&replicaSet=CherryBrooklyn-shard-0&authSource=admin&retryWrites=true', {
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    autoIndex: false
 });
 
 mongoose.Promise = global.Promise;
