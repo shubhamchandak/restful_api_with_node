@@ -18,8 +18,8 @@ const orderSchema = mongoose.Schema({
         address: {type: String, required: true},
         status: {type: Number, default: 1},
         otpCode: {type: Number, required: true},
-        timestamp: {type: Date, default: Date.now()}
+        // timestamp: {type: String, required: true}
     }
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model('Order', orderSchema);
