@@ -11,10 +11,14 @@ const Product = require('../models/product');
 
 
 router.get('/', (req, res, next) => {
-    Order.find()
-    .select('_id order')
+    var datetime = new Date();
+    datetime.setHours(0, 0, 0, 0);
+    var midnightTime = datetime.toISOString();
+    Order.find({status: {$ne: 1}, createdAt: {$gte: midnightTime}})
+    .sort({_id: -1})
+    .select('_id order updatedAt')
     .populate({
-        path: 'order.items.productId',
+        path: 'order.items.type.productId',
         model: 'Product',
         select: 'name price'
     })
@@ -33,7 +37,6 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-    console.log(req.body);
     if (!(req.body.order && req.body.order.items && req.body.order.items.length > 0) &&
         !(req.body.order.customerName && req.body.order.phone && req.body.order.address)) {
         return res.status(400).json({
@@ -47,7 +50,7 @@ router.post('/', (req, res, next) => {
     userPhone = req.body.order.phone; 
     newOrder.order.netAmount = 0;
     newOrder.order.otpCode = Math.floor(Math.random()* 999999-100001) + 100001;
-    productIds = req.body.order.items.map(a => a.productId);
+    productIds = req.body.order.items.map(a => a._id);
     productQuantities = req.body.order.items.map(a => a.quantity);
     Product.find({ _id: {$in: productIds} })
     .exec()
@@ -57,6 +60,7 @@ router.post('/', (req, res, next) => {
                 productIds.forEach((id, index) => {
                     if(id == x._id) {
                         newOrder.order.netAmount += productQuantities[index] * x.price;
+                        newOrder.order.items[index].productId = x._id;
                     }
                 });
                 newOrder.order.finalAmount = newOrder.order.netAmount;
@@ -65,12 +69,10 @@ router.post('/', (req, res, next) => {
             .where('order.status').ne(1)
             .exec()
             .then(prevOrders => {
-                console.log("Purane orders ka length: " + prevOrders.length)
                 if(prevOrders.length == 0) {
                     newOrder.order.discount = ((newOrder.order.netAmount/2 > 50) ? 50 : (newOrder.order.netAmount/2));
                     newOrder.order.finalAmount = newOrder.order.netAmount - newOrder.order.discount;
                 }
-                console.log("netAmount: " + newOrder.order.netAmount + ",discount: " + newOrder.order.discount + ", finalAmount: " + newOrder.order.finalAmount);
                 newOrder.save()
                 .then(result => {
                     nexmo.sendOtp(newOrder.order.otpCode, userPhone);
@@ -190,7 +192,7 @@ router.patch('/:orderId', (req, res, next) => {
             }
         )
     } else {
-        // checkAuth(req, res, next);
+        checkAuth(req, res, next);
         const updateOps = {};
         for(const ops of req.body){
             updateOps[ops.propName] = ops.value;
