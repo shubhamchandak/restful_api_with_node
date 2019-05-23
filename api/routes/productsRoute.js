@@ -79,7 +79,7 @@ router.get('/:productId', (req, res, next) => {
     });
 });
 
-router.patch('/:productId', checkAuth, (req, res, next) => {
+router.patch('/:productId', (req, res, next) => {
     const id = req.params.productId;
     const updateOps = {};
     for(const ops of req.body){
