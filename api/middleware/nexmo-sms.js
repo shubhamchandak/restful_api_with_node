@@ -59,6 +59,9 @@ module.exports = {
         var result = Order.findById(orderId)
         .exec()
         .then(orderDetail => {
+            if (orderDetail.order.status > 1) {
+                return false;
+            }
             return (orderDetail.order.otpCode == otpCode);
         })
         .catch(err => {
