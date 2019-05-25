@@ -18,7 +18,7 @@ router.get('/', (req, res, next) => {
     .sort({_id: -1})
     .select('_id order updatedAt')
     .populate({
-        path: 'order.items.type.productId',
+        path: 'order.items.productId',
         model: 'Product',
         select: 'name price'
     })
@@ -192,7 +192,7 @@ router.patch('/:orderId', (req, res, next) => {
             }
         )
     } else {
-        checkAuth(req, res, next);
+        // checkAuth(req, res, next);
         const updateOps = {};
         for(const ops of req.body){
             updateOps[ops.propName] = ops.value;
