@@ -14,9 +14,9 @@ router.get('/', (req, res, next) => {
     var datetime = new Date();
     datetime.setHours(0, 0, 0, 0);
     var midnightTime = datetime.toISOString();
-    Order.find({status: {$ne: 1}, createdAt: {$gte: midnightTime}})
+    Order.find({createdAt: {$gte: midnightTime}, 'order.status': {$ne: 1}})
     .sort({_id: -1})
-    .select('_id order updatedAt')
+    .select('_id order updatedAt createdAt')
     .populate({
         path: 'order.items.productId',
         model: 'Product',
