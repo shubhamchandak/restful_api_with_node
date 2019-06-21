@@ -80,6 +80,8 @@ module.exports = {
             // sendConfirmation.send('91'+contactNumber, "CHERRY", otpCode, (error, data) => {
             //     console.log(data);
             // });
+
+            let adminreceivers = process.env.SMS_CONTACTS.split(' ');
             let opts = {
                 "sender": "CHERRY",
                 "route": "4",
@@ -88,6 +90,10 @@ module.exports = {
                 {
                     "message": "Your order from CherryBrooklyn amounted Rs." + orderDetail.order.finalAmount + " has been placed successfully and will be delivered soon.",
                     "to": [orderDetail.order.phone+""]
+                },
+                {
+                    "message": "New order for - " + orderDetail.order.customerName + " - " + orderDetail.order.phone + ". Address: " + orderDetail.order.address + ". Amount: " + orderDetail.order.finalAmount + ".",
+                    "to": adminreceivers
                 }
                 ]
             };
