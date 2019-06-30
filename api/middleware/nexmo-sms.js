@@ -1,46 +1,3 @@
-// const Nexmo = require('nexmo');
-// const Order = require('../models/order');
-
-// const nexmo = new Nexmo({
-//     apiKey: process.env.NEXMO_API_KEY,
-//     apiSecret: process.env.NEXMO_API_SECRET
-// });
-
-// const from = "CherryBrooklyn";
-// const otpText = "Thank you for Ordering from CherryBrooklyn. Your OTP is: ";
-
-// module.exports = {
-//     sendOtp: (otpCode, to) => {
-//         console.log("GHUSA => ", otpCode, to);
-//         nexmo.message.sendSms(from, '91'+to, otpText + otpCode);
-//     },
-//     verifyOtp: async (otpCode, orderId) => {
-//         var result = Order.findById(orderId)
-//         .exec()
-//         .then(orderDetail => {
-//             return (orderDetail.order.status == 1 && orderDetail.order.otpCode == otpCode);
-//         })
-//         .catch(err => {
-//             return err;
-//         })
-//         return result;
-//     },
-//     sendConfirmationSms: (orderId) => {
-//         Order.findById(orderId)
-//         .exec()
-//         .then(orderDetail => {
-//             const orderConfirmText = "Your order from CherryBrooklyn with orderId: " + orderId + 
-//                 " has been Placed Successfully and will be delivered soon.";
-//             nexmo.message.sendSms(from, '91'+orderDetail.order.phone, orderConfirmText);
-//         })
-//         .catch(err => {
-//             return err;
-//         })
-
-//     }
-// }
-
-
 const SendOtp = require('sendotp');
 const MSG91 = require('msg91-node-v2');
 const Order = require('../models/order');
@@ -50,10 +7,31 @@ const msg91 = new MSG91(process.env.MSG_AUTH_API_KEY);
 module.exports = {
     sendOtp: (otp, contactNumber) => {
         console.log("otpotpotp => " + otp);
-        const sendOtp = new SendOtp(process.env.MSG_AUTH_API_KEY, "Thank you for ordering from CherryBrooklyn. Your OTP is: " + otp);
-        sendOtp.send('91'+contactNumber, "CHERRY", otp, (error, data) => {
-            console.log(data);
-        });
+
+    let opt = {
+        "sender": "CHERRY",
+        "route": "4",
+        "country": "91",
+        "sms": [
+                {
+                    "message": "Thank you for ordering from CherryBrooklyn. Your OTP is: " + otp,
+                    "to": ['91'+contactNumber]
+                }
+            ]
+        }    
+        msg91.send(opt).then((data) => {
+                console.log(data);
+                // in success you'll get object
+                // {"message":"REQUET_ID","type":"success"}
+            }).catch((error) => {
+                // refer Handle error section
+                console.log(error);
+            });
+
+        // const sendOtp = new SendOtp(process.env.MSG_AUTH_API_KEY, "Thank you for ordering from CherryBrooklyn. Your OTP is: " + otp);
+        // sendOtp.send('91'+contactNumber, "CHERRY", otp, (error, data) => {
+        //     console.log(data);
+        // });
     },
     verifyOtp: async (otpCode, orderId) => {
         var result = Order.findById(orderId)
