@@ -8,30 +8,35 @@ module.exports = {
     sendOtp: (otp, contactNumber) => {
         console.log("otpotpotp => " + otp);
 
-    let opt = {
-        "sender": "CHERRY",
-        "route": "4",
-        "country": "91",
-        "sms": [
-                {
-                    "message": "Thank you for ordering from CherryBrooklyn. Your OTP is: " + otp,
-                    "to": ['91'+contactNumber]
-                }
-            ]
-        }    
-        msg91.send(opt).then((data) => {
-                console.log(data);
-                // in success you'll get object
-                // {"message":"REQUET_ID","type":"success"}
-            }).catch((error) => {
-                // refer Handle error section
-                console.log(error);
-            });
+    // let opt = {
+    //     "sender": "CHERRY",
+    //     "route": "4",
+    //     "country": "91",
+    //     "sms": [
+    //             {
+    //                 "message": "Thank you for ordering from CherryBrooklyn. Your OTP is: " + otp,
+    //                 "to": ['91'+contactNumber]
+    //             }
+    //         ]
+    //     }    
+    //     msg91.send(opt).then((data) => {
+    //             console.log(data);
+    //             // in success you'll get object
+    //             // {"message":"REQUET_ID","type":"success"}
+    //         }).catch((error) => {
+    //             // refer Handle error section
+    //             console.log(error);
+    //         });
 
-        // const sendOtp = new SendOtp(process.env.MSG_AUTH_API_KEY, "Thank you for ordering from CherryBrooklyn. Your OTP is: " + otp);
-        // sendOtp.send('91'+contactNumber, "CHERRY", otp, (error, data) => {
-        //     console.log(data);
-        // });
+        const sendOtp = new SendOtp(process.env.MSG_AUTH_API_KEY, "Thank you for ordering from CherryBrooklyn. Your OTP is: " + otp);
+        sendOtp.send('91'+contactNumber, "CHERRY", otp, (error, data) => {
+            if(data) {
+                console.log(data);
+            }
+            if(error) {
+                console.log(error);
+            }
+        });
     },
     verifyOtp: async (otpCode, orderId) => {
         var result = Order.findById(orderId)
