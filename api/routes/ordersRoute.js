@@ -70,7 +70,8 @@ router.post('/', (req, res, next) => {
             .exec()
             .then(prevOrders => {
                 if(prevOrders.length == 0) {
-                    newOrder.order.discount = ((newOrder.order.netAmount/2 > 50) ? 50 : (newOrder.order.netAmount/2));
+                    //newOrder.order.discount = ((newOrder.order.netAmount/2 > 50) ? 50 : (newOrder.order.netAmount/2));
+                    newOrder.order.discount = 0;
                     newOrder.order.finalAmount = newOrder.order.netAmount - newOrder.order.discount;
                 }
                 newOrder.save()
