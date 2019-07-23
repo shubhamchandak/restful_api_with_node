@@ -63,7 +63,8 @@ router.post('/', (req, res, next) => {
                         newOrder.order.items[index].productId = x._id;
                     }
                 });
-                newOrder.order.finalAmount = newOrder.order.netAmount;
+                newOrder.order.deliveryCharges = newOrder.order.netAmount >= 100 ? 0 : 5;  
+                newOrder.order.finalAmount = newOrder.order.netAmount + newOrder.order.deliveryCharges;
             });
             Order.find({'order.phone': userPhone})
             .where('order.status').ne(1)
@@ -72,7 +73,7 @@ router.post('/', (req, res, next) => {
                 if(prevOrders.length == 0) {
                     //newOrder.order.discount = ((newOrder.order.netAmount/2 > 50) ? 50 : (newOrder.order.netAmount/2));
                     newOrder.order.discount = 0;
-                    newOrder.order.finalAmount = newOrder.order.netAmount - newOrder.order.discount;
+                    newOrder.order.finalAmount = newOrder.order.netAmount - newOrder.order.discount + newOrder.order.deliveryCharges;
                 }
                 newOrder.save()
                 .then(result => {

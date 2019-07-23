@@ -7,7 +7,7 @@ const Product = require("../models/product");
 
 router.get('/', (req, res, next) => {
     Product.find()
-    .select('_id name price status type')
+    .select('_id name price status type discount')
     .exec()
     .then(docs => {
         const response = {
@@ -79,7 +79,7 @@ router.get('/:productId', (req, res, next) => {
     });
 });
 
-router.patch('/:productId', (req, res, next) => {
+router.patch('/:productId', checkAuth, (req, res, next) => {
     const id = req.params.productId;
     const updateOps = {};
     for(const ops of req.body){
