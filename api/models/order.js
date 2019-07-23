@@ -18,6 +18,7 @@ const orderSchema = mongoose.Schema({
         address: {type: String, required: true},
         status: {type: Number, default: 1},
         otpCode: {type: Number, required: true},
+        deliveryCharges: {type: Number, default: 0}
         // timestamp: {type: String, required: true}
     }
 }, {timestamps: true});
