@@ -73,11 +73,11 @@ router.post('/', (req, res, next) => {
             .where('createdAt').gte('2019-08-03T12:59:00.000Z')
             .exec()
             .then(prevOrders => {
-                if(prevOrders.length < 3) {
+                if(prevOrders.length < 2) {
                     // 50% off upto 50 on our prices
                     //newOrder.order.discount = ((newOrder.order.netAmount/2 > 50) ? 50 : (newOrder.order.netAmount/2));
 
-                    //50% off on swiggy prices
+                    //50% off on swiggy prices twice per user
                     newOrder.order.discount = newOrder.order.netAmount - (swiggyAmount/2);
                     
                     //no discount
