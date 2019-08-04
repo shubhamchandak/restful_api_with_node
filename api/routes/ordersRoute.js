@@ -56,11 +56,13 @@ router.post('/', (req, res, next) => {
     .exec()
     .then(result => {
         if(result.length > 0 && result.length == productIds.length){
+            let swiggyAmount = 0;
             result.map(x => {
                 productIds.forEach((id, index) => {
                     if(id == x._id) {
                         newOrder.order.netAmount += productQuantities[index] * x.price;
                         newOrder.order.items[index].productId = x._id;
+                        swiggyAmount += productQuantities[index] * (x.price + x.discount);
                     }
                 });
                 newOrder.order.deliveryCharges = newOrder.order.netAmount >= 100 ? 0 : 5;  
@@ -68,11 +70,19 @@ router.post('/', (req, res, next) => {
             });
             Order.find({'order.phone': userPhone})
             .where('order.status').ne(1)
+            .where('createdAt').gte('2019-08-03T12:59:00.000Z')
             .exec()
             .then(prevOrders => {
-                if(prevOrders.length == 0) {
+                if(prevOrders.length <= 3) {
+                    // 50% off upto 50 on our prices
                     //newOrder.order.discount = ((newOrder.order.netAmount/2 > 50) ? 50 : (newOrder.order.netAmount/2));
-                    newOrder.order.discount = 0;
+
+                    //50% off on swiggy prices
+                    newOrder.order.discount = newOrder.order.netAmount - (swiggyAmount/2);
+                    
+                    //no discount
+                    //newOrder.order.discount = 0;
+
                     newOrder.order.finalAmount = newOrder.order.netAmount - newOrder.order.discount + newOrder.order.deliveryCharges;
                 }
                 newOrder.save()
