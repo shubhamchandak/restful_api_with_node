@@ -71,7 +71,7 @@ module.exports = {
                 "country": "91",
                 "sms": [
                 {
-                    "message": "Your order from CherryBrooklyn amounted Rs." + orderDetail.order.finalAmount + " has been placed successfully and will be delivered soon.",
+                    "message": "Your order from CherryBrooklyn amounted Rs." + orderDetail.order.finalAmount + " has been placed successfully and will be delivered soon. For realtime updates on your order, reach to our delivery excecutive at " + process.env.CONTACT_DELIVERY",
                     "to": [orderDetail.order.phone+""]
                 },
                 {
