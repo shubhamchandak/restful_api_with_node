@@ -65,7 +65,8 @@ router.post('/', (req, res, next) => {
                         swiggyAmount += productQuantities[index] * (x.price + x.discount);
                     }
                 });
-                newOrder.order.deliveryCharges = newOrder.order.netAmount >= 100 ? 0 : 5;  
+                // newOrder.order.deliveryCharges = newOrder.order.netAmount >= 100 ? 0 : 5;  
+                newOrder.order.deliveryCharges = 5;
                 newOrder.order.finalAmount = newOrder.order.netAmount + newOrder.order.deliveryCharges;
             });
             Order.find({'order.phone': userPhone})
